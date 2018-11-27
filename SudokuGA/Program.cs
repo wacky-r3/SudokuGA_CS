@@ -55,7 +55,7 @@ namespace SudokuGA
                 }
             }
 
-            int MAX_GEN = 10000;
+            int MAX_GEN = 5000;
 
             Random rand = new Random();
 
@@ -75,6 +75,13 @@ namespace SudokuGA
             int mutantPercent = 30;
             int score = -1;
             int peace = 0;
+            int mutationBlocks = 5;
+            int mutationTimes = 1;
+
+            if (hints <= 20) {
+                mutationBlocks = 9;
+                mutationTimes = 2;
+            }
 
             do {
                 //. random marriage
@@ -108,24 +115,25 @@ namespace SudokuGA
                 Dump(all[0]);
 
                 //. solved?
-                if ( (cur == score) && (score == 2) && (++peace > 80)) {
+                if ( cur == score) {
+                    peace++;
+                } else {
+                    peace = 0;
+                }
+
+                if ( (score == 2) && (peace > 80) ) {
                     //. Armageddon!!
                     for (int i = 0; i < MAX_GEN; i++) {
                         Armageddon(all[i]);
                     }
                 } else {
-                    if ( cur == score) {
-                        peace++;
-                    } else {
-                        peace = 0;
-                    }
                     //. update highest score
                     score = cur;
 
                     //. add mutation and next generation
                     for (int i = 0; i < MAX_GEN; i++) {
                         if ((rand.Next() % 100) < mutantPercent) {
-                            Mutation(all[i]);
+                            Mutation(all[i], mutationBlocks, mutationTimes);
                         }
                     }
                 }
@@ -170,32 +178,48 @@ namespace SudokuGA
         /// Mutation
         /// </summary>
         /// <param name="gen"></param>
-        public static void Mutation(int[,] gen)
+        public static void Mutation(int[,] gen, int mutationBlocks, int mutationTimes)
         {
             Random rand = new Random();
 
-            for (int ii = 0; ii < 7; ii++) {
+            for (int ii = 0; ii < mutationBlocks; ii++) {
                 int mb = rand.Next() % 9;
-                for (int j = 0; j < 1; j++) {
-                    int bri = (mb / 3) * 3;
-                    int bci = (mb % 3) * 3;
-                    int swapPointAR = rand.Next() % 3;
-                    int swapPointAC = rand.Next() % 3;
-                    int swapPointBR = rand.Next() % 3;
-                    int swapPointBC = rand.Next() % 3;
-                    if (gen[bri + swapPointAR, bci + swapPointAC] >= 100 || gen[bri + swapPointBR, bci + swapPointBC] >= 100) {
+                for (int j = 0; j < mutationTimes; j++) {
+                    int br = (mb / 3) * 3;
+                    int bc = (mb % 3) * 3;
+                    int spra = rand.Next() % 3;
+                    int spca= rand.Next() % 3;
+                    int sprb = rand.Next() % 3;
+                    int spcb = rand.Next() % 3;
+                    if (gen[br + spra, bc + spca] >= 100 || gen[br + sprb, bc + spcb] >= 100) {
                         //. nothing to do
                         j--;
                         continue;
                     }
-                    if ( (swapPointAC == swapPointBC) && (swapPointAR == swapPointBR)){
-                        //. nothing to do
-                        j--;
+
+                    bool canSwap = true;
+                    var val = gen[br + spra, bc + spca] + 100;
+                    for ( int k=0; k < 9; k++) {
+                        if ( gen[k, bc + spcb] == val) {
+                            canSwap = false;
+                            break;
+                        }
+                    }
+                    if ( !canSwap ) {
                         continue;
                     }
-                    var tmp = gen[bri + swapPointAR, bci + swapPointAC];
-                    gen[bri + swapPointAR, bci + swapPointAC] = gen[bri + swapPointBR, bci + swapPointBC];
-                    gen[bri + swapPointBR, bci + swapPointBC] = tmp;
+                    for (int k = 0; k < 9; k++) {
+                        if (gen[br + sprb, k] == val) {
+                            canSwap = false;
+                            break;
+                        }
+                    }
+                    if (!canSwap) {
+                        continue;
+                    }
+                    var tmp = gen[br + spra, bc + spca];
+                    gen[br + spra, bc + spca] = gen[br + sprb, bc + spcb];
+                    gen[br + sprb, bc + spcb] = tmp;
                 }
             }
         }
