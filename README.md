@@ -1,22 +1,12 @@
 # SudokuGA_CS
 
-This program will solve particular type of Sudoku quiz by GA.
+This program will solve the particular type of Sudoku quiz by GA.  
 
-Ussage: SudokuGA.exe question.txt
+Usage: SudokuGA.exe question.txt  
+(if you build on VS Mac then, mono SudokuGA.exe path_to_question)  
 
-It depends on hints' number. Maybe a quiz contains over 23 hints (experimentally), this program can solve. 
+This program depends on hints' number whether it can solve it or not.  
+Maybe a quiz contains over 23 hints (experimentally), this program can solve the quiz. Rarely this can solve quiz 17 (minimum) hints but such cases are rare and unstable.   
+I guess experts could figure out the better way on each GA process, making mutants, how to cross over and estimating fitness.  
 
-`
-Generation 1637 : Highest 0 / Lowest 17
-DUMP GEN
-  5   2 101   9 107   3   8   6 104
-103   6   8   4 105 102 109   1   7
-107   4   9   1   6   8   5 103   2
-  1 109   2 106 104   7 103   8   5
-  4   7 106   8   3 105   2 109   1
-  8   5 103   2   9   1   7 104   6
-  9 101   7 105   8 106   4   2 103
-  6   3 104   7   2   9   1   5 108
-102   8   5 103   1   4   6 107   9
-Solved!!
-`
+![solved image](./SudokuGA/solved_img.png)
